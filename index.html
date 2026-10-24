@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>VZ Manager - HOT & CHILI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #1a2632;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 98vh;
+            background: #f5f5f5;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            resize: both;
+        }
+        .app-container::-webkit-resizer { background: #3498db; border-radius: 0 0 10px 0; }
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .logo h1 { font-size: 18px; margin: 0; }
+        .logo p { font-size: 10px; opacity: 0.8; }
+        .header-buttons { display: flex; gap: 8px; }
+        .btn-header {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-header:hover { background: rgba(255,255,255,0.3); }
+        .btn-header.admin { background: #e74c3c; }
+        .btn-header.admin.active { background: #27ae60; }
+        .main-content { flex: 1; padding: 10px; display: flex; gap: 10px; min-height: 0; }
+        .columns { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
+        .items-panel, .invoice-panel {
+            flex: 1;
+            min-width: 240px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .panel-title {
+            background: #3498db;
+            color: white;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .items-list, .invoice-items { flex: 1; overflow-y: auto; padding: 8px; }
+        .item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #3498db;
+            transition: all 0.2s;
+        }
+        .item:hover { background: #e8f4fd; }
+        .item-info { flex: 1; min-width: 0; }
+        .item-name { font-weight: bold; font-size: 13px; color: #2c3e50; word-break: break-word; }
+        .item-price { font-size: 11px; color: #27ae60; }
+        .item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+        .btn-add {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-add:hover { background: #219653; }
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-edit:hover { background: #e67e22; }
+        .payment-row {
+            display: flex;
+            gap: 12px;
+            padding: 8px;
+            background: #e8f5e9;
+            flex-shrink: 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .invoice-item {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .invoice-item-name { flex: 2; font-weight: bold; font-size: 12px; word-break: break-word; }
+        .invoice-item-qty { display: flex; align-items: center; gap: 4px; }
+        .qty-btn {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .qty-btn:hover { background: #2980b9; }
+        .invoice-item-total {
+            min-width: 55px;
+            text-align: right;
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 12px;
+        }
+        .remove-item {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .remove-item:hover { background: #c0392b; }
+        .total-section {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .total-amount { font-size: 20px; font-weight: bold; }
+        .action-buttons { display: flex; gap: 8px; padding: 8px; flex-shrink: 0; }
+        .btn-print, .btn-clear {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .btn-print { background: #27ae60; color: white; }
+        .btn-print:hover { background: #219653; }
+        .btn-clear { background: #e74c3c; color: white; }
+        .btn-clear:hover { background: #c0392b; }
+        .bottom-nav {
+            background: #2c3e50;
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 0;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #95a5a6;
+            padding: 5px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { color: white; }
+        .nav-btn.active { color: #3498db; background: rgba(52,152,219,0.2); }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 320px;
+            animation: slideIn 0.2s ease;
+        }
+        @keyframes slideIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-header {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            border-radius: 16px 16px 0 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        .modal-body { padding: 16px; }
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid #eee;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-save { background: #27ae60; color: white; }
+        .btn-save:hover { background: #219653; }
+        .btn-cancel { background: #95a5a6; color: white; }
+        .btn-cancel:hover { background: #7f8c8d; }
+        .search-result {
+            background: #f8f9fa;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            display: none;
+            z-index: 1100;
+            white-space: nowrap;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        .empty-invoice { text-align: center; color: #95a5a6; padding: 20px; font-size: 12px; }
+        @media (max-width: 700px) {
+            .columns { flex-direction: column; }
+            .items-list, .invoice-items { max-height: 220px; }
+        }
+        @media (max-width: 480px) {
+            .header { flex-direction: column; text-align: center; }
+            .invoice-item { flex-direction: column; align-items: stretch; }
+            .invoice-item-qty { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="logo">
+                <h1>🔥 VZ MANAGER</h1>
+                <p>HOT & CHILI | Telelenker</p>
+            </div>
+            <div class="header-buttons">
+                <button class="btn-header" id="langBtn">🌐 EN</button>
+                <button class="btn-header admin" id="adminBtn">👑 Admin</button>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="columns">
+                <div class="items-panel">
+                    <div class="panel-title">📦 MENU ITEMS</div>
+                    <div class="items-list" id="itemsList"></div>
+                </div>
+                <div class="invoice-panel">
+                    <div class="panel-title">🧾 INVOICE</div>
+                    <div class="payment-row">
+                        <label class="payment-option"><input type="radio" name="payment" value="cash" checked> 💵 Cash</label>
+                        <label class="payment-option"><input type="radio" name="payment" value="online"> 🌐 Online</label>
+                        <label class="payment-option"><input type="radio" name="payment" value="boss"> 👑 Boss</label>
+                    </div>
+                    <div class="invoice-items" id="invoiceItems"><div class="empty-invoice">📋 No items added</div></div>
+                    <div class="total-section"><span>💰 TOTAL</span><span class="total-amount" id="totalAmount">Rs 0</span></div>
+                    <div class="action-buttons"><button class="btn-print" id="printBtn">🖨️ PRINT</button><button class="btn-clear" id="clearBtn">🗑️ CLEAR</button></div>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <button class="nav-btn active" data-action="home">🏠 HOME</button>
+            <button class="nav-btn" data-action="add">➕ ADD</button>
+            <button class="nav-btn" data-action="edit">✏️ EDIT</button>
+            <button class="nav-btn" data-action="delete">🗑️ DEL</button>
+            <button class="nav-btn" data-action="search">🔍 SEARCH</button>
+            <button class="nav-btn" data-action="settings">⚙️ SET</button>
+        </div>
+    </div>
+    
+    <div id="adminModal" class="modal"><div class="modal-content"><div class="modal-header">👑 ADMIN LOGIN</div><div class="modal-body"><input type="text" id="adminUser" class="modal-input" placeholder="Username"><input type="password" id="adminPass" class="modal-input" placeholder="Password"></div><div class="modal-footer"><button class="modal-btn btn-cancel" id="closeAdminModal">Cancel</button><button class="modal-btn btn-save" id="loginBtn">Login</button></div></div></div>
+    
+    <div id="itemModal" class="modal"><div class="modal-content"><div class="modal-header" id="itemModalTitle">Add Item</div><div class="modal-body"><input type="text" id="itemName" class="modal-input" placeholder="Item name"><input type="number" id="itemPrice" class="modal-input" placeholder="Price (Rs)"><input type="hidden" id="editItemId"></div><div class="modal-footer"><button class="modal-btn btn-cancel" id="closeItemModal">Cancel</button><button class="modal-btn btn-save" id="saveItemBtn">Save</button></div></div></div>
+    
+    <div id="searchModal" class="modal"><div class="modal-content"><div class="modal-header">🔍 SEARCH</div><div class="modal-body"><input type="text" id="searchInput" class="modal-input" placeholder="Type to search..."><div id="searchResults" style="margin-top: 10px; max-height: 250px; overflow-y: auto;"></div></div><div class="modal-footer"><button class="modal-btn btn-cancel" id="closeSearchModal">Close</button></div></div></div>
+    
+    <div id="settingsModal" class="modal"><div class="modal-content"><div class="modal-header">⚙️ SETTINGS</div><div class="modal-body"><label>WhatsApp:</label><input type="text" id="whatsappNumber" class="modal-input" placeholder="+92XXXXXXXXXX"><label>Auto Save:</label><select id="autoSave" class="modal-input"><option value="on">ON</option><option value="off">OFF</option></select></div><div class="modal-footer"><button class="modal-btn btn-cancel" id="closeSettingsModal">Close</button><button class="modal-btn btn-save" id="saveSettingsBtn">Save</button></div></div></div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let products = [
+            { id: 1, name: "ZINGER BURGER", price: 350 },
+            { id: 2, name: "CHRON BURGER", price: 320 },
+            { id: 3, name: "REEF BURGER", price: 300 },
+            { id: 4, name: "ONLY BROAST", price: 450 },
+            { id: 5, name: "SANDWICH", price: 150 },
+            { id: 6, name: "CHRON ROLL", price: 250 },
+            { id: 7, name: "CHICKEN ROLL", price: 280 },
+            { id: 8, name: "CRISPY ROLL", price: 220 },
+            { id: 9, name: "REEF ROLL", price: 240 },
+            { id: 10, name: "DRINKS", price: 60 }
+        ];
+        let invoiceItems = [];
+        let currentPayment = "cash";
+        let isAdmin = false;
+        let adminPassword = "kgf292900";
+        let deleteMode = false;
+
+        function loadData() {
+            try {
+                let saved = localStorage.getItem('vz_products');
+                if (saved) products = JSON.parse(saved);
+                saved = localStorage.getItem('vz_invoice');
+                if (saved) invoiceItems = JSON.parse(saved);
+                saved = localStorage.getItem('vz_payment');
+                if (saved) currentPayment = saved;
+                document.querySelectorAll('input[name="payment"]').forEach(r => { if (r.value === currentPayment) r.checked = true; });
+            } catch(e) {}
+        }
+        function saveAll() {
+            localStorage.setItem('vz_products', JSON.stringify(products));
+            localStorage.setItem('vz_invoice', JSON.stringify(invoiceItems));
+            localStorage.setItem('vz_payment', currentPayment);
+        }
+        function renderItems() {
+            const container = document.getElementById('itemsList');
+            container.innerHTML = '';
+            products.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `<div class="item-info"><div class="item-name">${p.name}</div><div class="item-price">Rs ${p.price}</div></div><div class="item-actions"><button class="btn-add" onclick="addToInvoice(${p.id})">+ Add</button>${isAdmin ? `<button class="btn-edit" onclick="editItem(${p.id})">✏️</button>` : ''}</div>`;
+                container.appendChild(div);
+            });
+        }
+        function renderInvoice() {
+            const container = document.getElementById('invoiceItems');
+            let total = 0;
+            if (invoiceItems.length === 0) { container.innerHTML = '<div class="empty-invoice">📋 No items added</div>'; document.getElementById('totalAmount').textContent = 'Rs 0'; return; }
+            container.innerHTML = '';
+            invoiceItems.forEach((item, idx) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                const div = document.createElement('div');
+                div.className = 'invoice-item';
+                div.innerHTML = `<div class="invoice-item-name">${item.name}</div><div class="invoice-item-qty"><button class="qty-btn" onclick="updateQty(${idx}, ${item.quantity - 1})">-</button><span style="min-width:25px;text-align:center">${item.quantity}</span><button class="qty-btn" onclick="updateQty(${idx}, ${item.quantity + 1})">+</button></div><div class="invoice-item-total">Rs ${itemTotal}</div><button class="remove-item" onclick="removeItem(${idx})">×</button>`;
+                container.appendChild(div);
+            });
+            document.getElementById('totalAmount').textContent = `Rs ${total}`;
+        }
+        window.addToInvoice = (id) => {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            const existing = invoiceItems.find(i => i.id === id);
+            if (existing) existing.quantity++;
+            else invoiceItems.push({ ...product, quantity: 1 });
+            renderInvoice(); saveAll(); showToast(`${product.name} added`);
+        };
+        window.updateQty = (idx, qty) => { if (qty < 1) invoiceItems.splice(idx, 1); else invoiceItems[idx].quantity = qty; renderInvoice(); saveAll(); };
+        window.removeItem = (idx) => { invoiceItems.splice(idx, 1); renderInvoice(); saveAll(); };
+        document.querySelectorAll('input[name="payment"]').forEach(r => { r.addEventListener('change', (e) => { currentPayment = e.target.value; saveAll(); }); });
+        document.getElementById('printBtn').onclick = () => {
+            if (invoiceItems.length === 0) { showToast("Invoice empty!", "error"); return; }
+            const total = invoiceItems.reduce((s,i) => s + i.price * i.quantity, 0);
+            const payText = { cash: "CASH", online: "ONLINE", boss: "BOSS ORDER" }[currentPayment];
+            const win = window.open('', '_blank');
+            win.document.write(`<html><head><title>HOT&CHILI</title><style>body{font-family:Arial;padding:20px;text-align:center}.h{color:#e74c3c;font-size:24px}.items{margin:20px 0;text-align:left}.row{display:flex;justify-content:space-between;padding:5px 0}.total{font-size:20px;font-weight:bold;margin-top:20px;border-top:1px solid #ddd;padding-top:10px}.pay{margin-top:15px;padding:10px;background:#e8f5e9}</style></head><body><div class="h">🔥 HOT & CHILI 🔥</div><h3>VZ MANAGER</h3><p>${new Date().toLocaleString()}</p><div class="items">${invoiceItems.map(i => `<div class="row"><span>${i.name} x${i.quantity}</span><span>Rs ${i.price*i.quantity}</span></div>`).join('')}</div><div class="total">TOTAL: Rs ${total}</div><div class="pay">PAYMENT: ${payText}</div><p style="margin-top:30px">Thank you! Visit Again<br>Telelenker</p></body></html>`);
+            win.document.close(); win.print();
+        };
+        document.getElementById('clearBtn').onclick = () => { if (invoiceItems.length && confirm("Clear invoice?")) { invoiceItems = []; renderInvoice(); saveAll(); showToast("Invoice cleared"); } };
+        document.getElementById('adminBtn').onclick = () => { if (isAdmin) { isAdmin = false; document.getElementById('adminBtn').classList.remove('active'); renderItems(); showToast("Admin logged out"); } else { document.getElementById('adminModal').style.display = 'flex'; } };
+        document.getElementById('loginBtn').onclick = () => { const user = document.getElementById('adminUser').value; const pass = document.getElementById('adminPass').value; if (user === "kgf2029" && pass === adminPassword) { isAdmin = true; document.getElementById('adminBtn').classList.add('active'); document.getElementById('adminModal').style.display = 'none'; document.getElementById('adminUser').value = ''; document.getElementById('adminPass').value = ''; renderItems(); showToast("Admin logged in"); } else { showToast("Wrong password!", "error"); } };
+        document.getElementById('closeAdminModal').onclick = () => document.getElementById('adminModal').style.display = 'none';
+        window.editItem = (id) => { if (!isAdmin) { showToast("Login as admin first", "error"); return; } const p = products.find(p => p.id === id); if (p) { document.getElementById('itemModalTitle').textContent = "Edit Item"; document.getElementById('itemName').value = p.name; document.getElementById('itemPrice').value = p.price; document.getElementById('editItemId').value = id; document.getElementById('itemModal').style.display = 'flex'; } };
+        document.getElementById('saveItemBtn').onclick = () => { const name = document.getElementById('itemName').value; const price = parseFloat(document.getElementById('itemPrice').value); const editId = document.getElementById('editItemId').value; if (!name || isNaN(price)) { showToast("Enter valid name & price", "error"); return; } if (editId) { const idx = products.findIndex(p => p.id == editId); if (idx !== -1) products[idx] = { ...products[idx], name, price }; showToast("Item updated"); } else { const newId = Math.max(...products.map(p => p.id), 0) + 1; products.push({ id: newId, name, price }); showToast("Item added"); } saveAll(); renderItems(); document.getElementById('itemModal').style.display = 'none'; document.getElementById('itemName').value = ''; document.getElementById('itemPrice').value = ''; document.getElementById('editItemId').value = ''; document.getElementById('itemModalTitle').textContent = "Add Item"; };
+        document.getElementById('closeItemModal').onclick = () => document.getElementById('itemModal').style.display = 'none';
+        function enableDeleteMode() { if (!isAdmin) { showToast("Login as admin first", "error"); return false; } deleteMode = true; showToast("Delete mode ON - Click any item", "warning"); document.querySelectorAll('.item').forEach(item => { item.style.opacity = "0.6"; item.style.cursor = "pointer"; item.onclick = () => { if (deleteMode) { const name = item.querySelector('.item-name').textContent; if (confirm(`Delete ${name}?`)) { products = products.filter(p => p.name !== name); saveAll(); renderItems(); showToast(`${name} deleted`); disableDeleteMode(); } } }; }); return true; }
+        function disableDeleteMode() { deleteMode = false; document.querySelectorAll('.item').forEach(item => { item.style.opacity = "1"; item.style.cursor = "default"; item.onclick = null; }); showToast("Delete mode OFF"); }
+        function openSearch() { document.getElementById('searchModal').style.display = 'flex'; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; }
+        document.getElementById('searchInput').oninput = (e) => { const query = e.target.value.toLowerCase(); const results = products.filter(p => p.name.toLowerCase().includes(query)); const div = document.getElementById('searchResults'); if (results.length === 0) { div.innerHTML = '<div style="text-align:center;color:#999">No items</div>'; return; } div.innerHTML = results.map(p => `<div class="search-result"><span><b>${p.name}</b> Rs ${p.price}</span><button class="btn-add" onclick="addFromSearch(${p.id})">+</button></div>`).join(''); };
+        window.addFromSearch = (id) => { addToInvoice(id); document.getElementById('searchModal').style.display = 'none'; };
+        document.getElementById('closeSearchModal').onclick = () => document.getElementById('searchModal').style.display = 'none';
+        function openSettings() { document.getElementById('whatsappNumber').value = localStorage.getItem('vz_whatsapp') || ''; document.getElementById('autoSave').value = localStorage.getItem('vz_autosave') || 'on'; document.getElementById('settingsModal').style.display = 'flex'; }
+        document.getElementById('saveSettingsBtn').onclick = () => { localStorage.setItem('vz_whatsapp', document.getElementById('whatsappNumber').value); localStorage.setItem('vz_autosave', document.getElementById('autoSave').value); document.getElementById('settingsModal').style.display = 'none'; showToast("Settings saved"); };
+        document.getElementById('closeSettingsModal').onclick = () => document.getElementById('settingsModal').style.display = 'none';
+        document.querySelectorAll('.nav-btn').forEach(btn => { btn.onclick = () => { document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); const action = btn.dataset.action; switch(action) { case 'home': break; case 'add': if (isAdmin) { document.getElementById('editItemId').value = ''; document.getElementById('itemModalTitle').textContent = "Add Item"; document.getElementById('itemName').value = ''; document.getElementById('itemPrice').value = ''; document.getElementById('itemModal').style.display = 'flex'; } else showToast("Login as admin", "error"); break; case 'edit': if (isAdmin) showToast("Click edit button on any item", "info"); else showToast("Login as admin", "error"); break; case 'delete': enableDeleteMode(); break; case 'search': openSearch(); break; case 'settings': openSettings(); break; } }; });
+        function showToast(msg, type = "success") { const toast = document.getElementById('toast'); toast.textContent = msg; toast.style.background = type === "error" ? "#e74c3c" : type === "warning" ? "#f39c12" : "#27ae60"; toast.style.display = "block"; setTimeout(() => toast.style.display = "none", 2000); }
+        let lang = "en";
+        document.getElementById('langBtn').onclick = () => { lang = lang === "en" ? "ur" : "en"; document.getElementById('langBtn').textContent = lang === "en" ? "🌐 EN" : "🌐 UR"; showToast(lang === "en" ? "English" : "اردو"); };
+        loadData(); renderItems(); renderInvoice();
+        window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; if (deleteMode && !e.target.closest('.item')) disableDeleteMode(); };
+    </script>
+</body>
+</html>
